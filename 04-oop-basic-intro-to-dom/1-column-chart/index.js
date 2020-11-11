@@ -3,6 +3,14 @@ export default class ColumnChart {
   element = null;
   chartHeight = 50;
 
+  /**
+   * Column Chart
+   * @param props {Object}
+   * @param props.label {string} - chart label
+   * @param props.value {string} - chart value
+   * @param props.data {Number[]} - data to be presented
+   * @param props.link {string} - link to more info
+   */
   constructor(props = {}) {
     this.props = props;
     this.render();
