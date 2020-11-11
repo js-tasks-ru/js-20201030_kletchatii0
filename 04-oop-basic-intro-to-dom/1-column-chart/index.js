@@ -65,10 +65,6 @@ export default class ColumnChart {
     }
   }
 
-  setValue(val) {
-    this.chartHeader.textContent = val;
-  }
-
   remove() {
     this.element.remove();
   }
@@ -90,7 +86,7 @@ export default class ColumnChart {
  */
 function elem({
                 tag = '', classNames = [], textContent = '',
-                attributes = {}, dataset = {}, styleCssText = ''
+                attributes = {}, styleCssText = ''
               }) {
   if (!Array.isArray(classNames)) classNames = [classNames];
   const elem = document.createElement(tag);
