@@ -1,42 +1,64 @@
 export default class ColumnChart {
+  /** @type {HTMLElement} */
   element = null;
+  chartHeight = 50;
 
-  constructor({data = [], label = '', link = '', value = null}) {
-    const element = document.createElement('div');
-    element.classList.add('column-chart');
-    const title = document.createElement('div');
-    title.classList.add('column-chart__title');
-    const container = document.createElement('div');
-    container.classList.add('column-chart__container');
-    const chartHeader = document.createElement('div');
-    chartHeader.classList.add('column-chart__header');
-    const chart = document.createElement('div');
-    chart.classList.add('column-chart__chart');
-    this.chart = chart;
-    this.element = element;
+  constructor(props = {}) {
+    this.props = props;
+    this.render();
+  }
 
-    if (label) title.textContent = label;
-    if (value) chartHeader.textContent = value;
+  render() {
+    const {label = '', value = '', data = [], link = ''} = this.props;
+    this.element = elem({
+      tag: 'div', classNames: ['column-chart', 'column-chart_loading'],
+      styleCssText: '--chart-height: ' + this.chartHeight
+    });
+    this.title = elem({
+      tag: 'div', classNames: 'column-chart__title',
+      textContent: label[0].toLocaleUpperCase() + label.slice(1),
+    });
+    this.container = elem({tag: 'div', classNames: 'column-chart__container'});
+    this.chartHeader = elem({tag: 'div', classNames: 'column-chart__header', textContent: value});
+    this.chart = elem({tag: 'div', classNames: 'column-chart__chart'});
+    this.link = elem({
+      tag: 'a', classNames: 'column-chart__link',
+      attributes: {href: link, rel: 'noopener noreferrer'},
+      textContent: 'View all',
+    });
+    if (link) {
+      this.title.append(this.link);
+    }
     this.buildBars(data);
 
-    element.append(title)
-    element.append(container);
-    container.append(chartHeader);
-    container.append(chart);
+    this.element.append(this.title);
+    this.element.append(this.container);
+    this.container.append(this.chartHeader);
+    this.container.append(this.chart);
   }
 
   buildBars(data) {
-    [].slice.call(this.chart.children).forEach(elem => elem.remove());
-    const bar = document.createElement('div');
-    bar.style.cssText = '--value: 0';
-    bar.dataset['tooltip'] = '0%';
-    const coef = 50 / Math.max(...data);
-    data.forEach((val) => {
-      let nextBar = bar.cloneNode();
-      nextBar.style.cssText = '--value: ' + (val * coef);
-      nextBar.dataset['tooltip'] = val + '%';
-      this.chart.append(nextBar);
+    if (!data.length) return;
+    this.element.classList.remove('column-chart_loading');
+    const maxVal = Math.max(...data);
+    const scale = this.chartHeight / maxVal;
+    data.forEach((val, i) => {
+      let bar = this.chart.children[i];
+      if (!bar) {
+        bar = document.createElement('div');
+        this.chart.append(bar);
+      }
+      bar.style.cssText = '--value: ' + Math.floor(val * scale);
+      bar.dataset['tooltip'] = (val / maxVal * 100).toFixed(0) + '%';
     });
+    let diff = Math.abs(data.length - this.chart.children.length);
+    if (diff !== 0) {
+      [].slice.call(this.chart.children, -diff).forEach(c => c.remove());
+    }
+  }
+
+  setValue(val) {
+    this.chartHeader.textContent = val;
   }
 
   remove() {
@@ -44,39 +66,31 @@ export default class ColumnChart {
   }
 
   destroy() {
-
+    this.remove();
   }
 
   update(data) {
     this.buildBars(data);
   }
 }
-/*
-<div class="column-chart">
-      <div class="column-chart__title">
-        Total orders
-        <a href="/sales" class="column-chart__link">View all</a>
-      </div>
-      <div class="column-chart__container">
-        <div data-element="header" class="column-chart__header">344</div>
-        <div data-element="body" class="column-chart__chart">
-          <div style="--value: 2" data-tooltip="6%"></div>
-          <div style="--value: 22" data-tooltip="44%"></div>
-          <div style="--value: 5" data-tooltip="11%"></div>
-          <div style="--value: 50" data-tooltip="100%"></div>
-          <div style="--value: 12" data-tooltip="25%"></div>
-          <div style="--value: 4" data-tooltip="8%"></div>
-          <div style="--value: 13" data-tooltip="28%"></div>
-          <div style="--value: 5" data-tooltip="11%"></div>
-          <div style="--value: 23" data-tooltip="47%"></div>
-          <div style="--value: 12" data-tooltip="25%"></div>
-          <div style="--value: 34" data-tooltip="69%"></div>
-          <div style="--value: 1" data-tooltip="3%"></div>
-          <div style="--value: 23" data-tooltip="47%"></div>
-          <div style="--value: 27" data-tooltip="56%"></div>
-          <div style="--value: 2" data-tooltip="6%"></div>
-          <div style="--value: 1" data-tooltip="3%"></div>
-        </div>
-     </div>
-</div>
-    */
+
+/**
+ * Create element with given class names
+ * @param stag {String}
+ * @param classNames {String|String[]}
+ * @return {HTMLElement}
+ */
+function elem({
+                tag = '', classNames = [], textContent = '',
+                attributes = {}, dataset = {}, styleCssText = ''
+              }) {
+  if (!Array.isArray(classNames)) classNames = [classNames];
+  const elem = document.createElement(tag);
+  elem.classList.add(...classNames);
+  for (const [key, val] of Object.entries(attributes)) {
+    elem.setAttribute(key, val);
+  }
+  elem.textContent = textContent;
+  elem.style.cssText = styleCssText;
+  return elem;
+}
