@@ -24,7 +24,7 @@ export default class ColumnChart {
     });
     this.title = elem({
       tag: 'div', classNames: 'column-chart__title',
-      textContent: label[0].toLocaleUpperCase() + label.slice(1),
+      textContent: label ? label[0].toLocaleUpperCase() + label.slice(1) : '',
     });
     this.container = elem({tag: 'div', classNames: 'column-chart__container'});
     this.chartHeader = elem({tag: 'div', classNames: 'column-chart__header', textContent: value});
