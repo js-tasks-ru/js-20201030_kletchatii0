@@ -3,6 +3,23 @@ export default class ColumnChart {
   element = null;
   chartHeight = 50;
 
+  tpl = `
+  <div class="column-chart column-chart_loading" style="--chart-height: ${this.chartHeight}">
+      <div class="column-chart__title">
+        Total ${this.label}
+        ${this.getLink()}
+      </div>
+      <div class="column-chart__container">
+        <div data-element="header" class="column-chart__header">
+          ${this.value}
+        </div>
+        <div data-element="body" class="column-chart__chart">
+          ${this.getColumnBody(this.data)}
+        </div>
+      </div>
+   </div>
+`;
+
   /**
    * Column Chart
    * @param props {Object}
