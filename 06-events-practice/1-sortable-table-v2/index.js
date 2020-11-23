@@ -41,7 +41,7 @@ const getTableTpl = (headers, products) => `
       `).join('')}
     </div>
     <div data-element="body" class="sortable-table__body">
-    ${products.map((product, i) => {
+${products.map((product, i) => {
   return `<a href="/products/${product.id}" class="sortable-table__row">` +
     headers.map((header) => {
       if (header.template) return header.template(product[header.id]);
@@ -83,7 +83,7 @@ export default class SortableTable {
         this.data = [...this.data].sort((el1, el2) => order * (el1[field] - el2[field]));
         break;
       case 'string':
-        this.data = [...this.data].sort((s1, s2) => order * s1[field].localeCompare(s2[field], 'ru', {'caseFirst': 'upper'}));
+        this.data = [...this.data].sort((s1, s2) => -order * s1[field].localeCompare(s2[field], 'ru', {'caseFirst': 'upper'}));
         break;
     }
   }
@@ -96,11 +96,12 @@ export default class SortableTable {
   onSort(event) {
     const col = event.target.closest('[data-sortable=true]');
     if (!col) return;
-    this.sort(col.dataset.id, col.dataset.order === "asc" ? 'desc' : 'asc');
+    const reverseSortMap = {'asc': 'desc', 'desc': 'asc'};
+    this.sort(col.dataset.id, reverseSortMap[col.dataset.order] || 'desc');
   }
 
   initEventsListeners() {
-    this.subElements.header.addEventListener('click', (event)=> this.onSort(event));
+    this.subElements.header.addEventListener('click', (event) => this.onSort(event));
   }
 
   render() {
