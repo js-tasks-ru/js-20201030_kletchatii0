@@ -57,11 +57,11 @@ export default class SortableTable {
 
   /**
    *
-   * @param header {Header[]}
+   * @param headers {Header[]}
    * @param data {Product[]}
    */
-  constructor(header, {data}) {
-    this.headers = header;
+  constructor(headers, {data}) {
+    this.headers = headers;
     this.data = data;
     this.render();
   }
