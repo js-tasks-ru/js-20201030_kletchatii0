@@ -66,10 +66,6 @@ export default class SortableTable {
   constructor(headers, {data}) {
     this.headers = headers;
     this.data = data;
-    const colToSortBy = headers.find((h) => h.sortable);
-    if (colToSortBy) {
-      this.sortData(colToSortBy.id, 'asc');
-    }
     this.render();
   }
 
@@ -77,13 +73,13 @@ export default class SortableTable {
     const header = this.headers.find((elm) => elm.id === field);
     if (!header || !header.sortable) return;
     this.headers.forEach(header => header.id === field ? header.order = sortType : header.order = null);
-    const order = sortType === 'asc' ? 1 : -1;
+    const direction = ({'asc': 1, 'desc': -1})[sortType];
     switch (header.sortType) {
       case 'number':
-        this.data = [...this.data].sort((el1, el2) => order * (el1[field] - el2[field]));
+        this.data = [...this.data].sort((el1, el2) => direction * (el1[field] - el2[field]));
         break;
       case 'string':
-        this.data = [...this.data].sort((s1, s2) => -order * s1[field].localeCompare(s2[field], 'ru', {'caseFirst': 'upper'}));
+        this.data = [...this.data].sort((s1, s2) => direction * s1[field].localeCompare(s2[field], 'ru'));
         break;
     }
   }
@@ -101,7 +97,7 @@ export default class SortableTable {
   }
 
   initEventsListeners() {
-    this.subElements.header.addEventListener('click', (event) => this.onSort(event));
+    this.subElements.header.addEventListener('pointerdown', (event) => this.onSort(event));
   }
 
   render() {
