@@ -6,6 +6,7 @@ class Tooltip {
     const ctnr = document.createElement('div');
     ctnr.innerHTML = getTpl(text);
     this.element = ctnr.firstElementChild;
+    document.body.append(this.element);
   }
 
   initialize() {
@@ -30,7 +31,6 @@ class Tooltip {
       const tooltipTarget = event.target.closest('[data-tooltip]');
       if (!tooltipTarget) return;
       this.render(tooltipTarget.dataset.tooltip);
-      document.body.append(this.element);
     };
     document.body.addEventListener('pointerover', onPointerOver);
     this.listenersRemovers.push(() => document.body.removeEventListener('pointerover', onPointerOver));
