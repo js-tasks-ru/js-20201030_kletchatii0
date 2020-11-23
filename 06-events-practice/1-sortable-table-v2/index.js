@@ -66,7 +66,7 @@ export default class SortableTable {
   constructor(headers, {data}) {
     this.headers = headers;
     this.data = data;
-    const colToSortBy = headers.filter((h) => h.sortable)[0];
+    const colToSortBy = headers.find((h) => h.sortable);
     if (colToSortBy) {
       this.sortData(colToSortBy.id, 'asc');
     }
@@ -100,7 +100,7 @@ export default class SortableTable {
   }
 
   initEventsListeners() {
-    this.subElements.header.addEventListener('click', (event)=> this.onSort(event), {capture: true});
+    this.subElements.header.addEventListener('click', (event)=> this.onSort(event));
   }
 
   render() {
