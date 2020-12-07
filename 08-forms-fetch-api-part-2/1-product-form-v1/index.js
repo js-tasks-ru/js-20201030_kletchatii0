@@ -4,6 +4,21 @@ import fetchJson from './utils/fetch-json.js';
 const IMGUR_CLIENT_ID = '28aaa2e823b03b1';
 const BACKEND_URL = 'https://course-js.javascript.ru';
 
+const tplImage = (img = {}) => `
+<li class="products-edit__imagelist-item sortable-list__item" style="">
+  <input type="hidden" name="url" value="${escapeHtml(img.url)}">
+  <input type="hidden" name="source" value="${escapeHtml(img.source)}">
+  <span>
+    <img src="icon-grab.svg" data-grab-handle="" alt="grab">
+    <img class="sortable-table__cell-img" alt="Image" src="${escapeHtml(img.url)}">
+    <span>${escapeHtml(img.source)}</span>
+  </span>
+  <button type="button">
+    <img src="icon-trash.svg" data-delete-handle="" alt="delete">
+  </button>
+</li>
+`
+
 const tpl = (product = {}, categories = []) => `
 <div class="product-form">
     <form data-element="productForm" class="form-grid">
@@ -21,23 +36,15 @@ const tpl = (product = {}, categories = []) => `
         <label class="form-label">Фото</label>
         <div data-element="imageListContainer">
           <ul class="sortable-list">
-              ${product.images?.map((img) => `
-              <li class="products-edit__imagelist-item sortable-list__item" style="">
-                <input type="hidden" name="url" value="${escapeHtml(img.url)}">
-                <input type="hidden" name="source" value="${escapeHtml(img.source)}">
-                <span>
-                  <img src="icon-grab.svg" data-grab-handle="" alt="grab">
-                  <img class="sortable-table__cell-img" alt="Image" src="${escapeHtml(img.url)}">
-                  <span>${escapeHtml(img.source)}</span>
-                </span>
-                <button type="button">
-                  <img src="icon-trash.svg" data-delete-handle="" alt="delete">
-                </button>
-              </li>
-              `).join('')}
+            ${product.images?.map((img) => `
+                ${tplImage(img)}
+            `).join('')}
            </ul>
         </div>
-      <button type="button" name="uploadImage" class="button-primary-outline"><span>Загрузить</span></button>
+        <label class="button-primary-outline fit-content">
+          <span>Загрузить</span>
+          <input name="uploadImage" id="uploadImage" type="file" style="display: none" accept="image/jpeg">
+        </label>
       </div>
       <div class="form-group form-group__half_left">
         <label class="form-label">Категория</label>
@@ -107,6 +114,27 @@ export default class ProductForm {
     this.subElements.productForm.addEventListener('submit', (e) => {
       e.preventDefault();
       this.save();
+    })
+
+    this.element.querySelector('[name=uploadImage]').addEventListener('change', async (e) => {
+      const [image] = e.target.files;
+      const body = new FormData;
+      body.append('image', image);
+      const res = await fetch('https://api.imgur.com/3/image', {
+        method: 'POST',
+        body: body,
+        headers: {authorization: 'Client-ID ' + IMGUR_CLIENT_ID},
+      });
+      const data = await res.json();
+      const c = document.createElement('li');
+      c.innerHTML = tplImage({url: data.data.link, source: image.name});
+      this.subElements.imageListContainer.querySelector('ul').append(...c.children);
+      e.target.value = '';
+    });
+    this.subElements.imageListContainer.addEventListener('click', (e) => {
+      if (!e.target.closest('[data-delete-handle]')) return;
+      const li = e.target.closest('li.products-edit__imagelist-item');
+      if (li) li.remove();
     })
   }
 
