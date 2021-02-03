@@ -450,7 +450,7 @@ body {
   border-color: var(--light-blue);
 }
 
-button.fit-content {
+button.fit-content, .fit-content {
   width: fit-content;
 }
 
